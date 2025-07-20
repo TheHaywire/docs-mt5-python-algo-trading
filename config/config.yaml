@@ -1,0 +1,130 @@
+# MT5 Configuration
+mt5:
+  login: 123456  # Replace with your MT5 login
+  password: "your_password_here"  # Replace with your MT5 password
+  server: "Broker-Server"  # Replace with your broker server
+  path: "C:/Program Files/MetaTrader 5/terminal64.exe"  # MT5 terminal path
+  timeout: 60000  # Connection timeout in milliseconds
+
+# Data Configuration
+data:
+  symbols:
+    - "EURUSD"
+    - "GBPUSD"
+    - "USDJPY"
+    - "AUDUSD"
+    - "USDCAD"
+  timeframes:
+    - "M1"
+    - "M5"
+    - "M15"
+    - "H1"
+    - "H4"
+  history_days: 30  # Days of historical data to load
+  update_interval: 1  # Data update interval in seconds
+
+# Strategy Configuration
+strategies:
+  - name: "Scalping"
+    enabled: true
+    params:
+      lookback: 20
+      threshold: 0.01
+      max_position_size: 0.1
+      stop_loss: 0.005
+      take_profit: 0.01
+  - name: "Momentum"
+    enabled: true
+    params:
+      lookback: 50
+      threshold: 0.02
+      max_position_size: 0.2
+      stop_loss: 0.01
+      take_profit: 0.02
+  - name: "MeanReversion"
+    enabled: false
+    params:
+      lookback: 100
+      z_score_threshold: 2.0
+      max_position_size: 0.15
+      stop_loss: 0.015
+      take_profit: 0.025
+
+# Risk Management Configuration
+risk:
+  max_daily_loss: 0.05  # 5% max daily loss
+  max_position_size: 0.02  # 2% max position size
+  max_total_exposure: 0.1  # 10% max total exposure
+  stop_loss: 0.01  # 1% stop loss
+  take_profit: 0.03  # 3% take profit
+  max_drawdown: 0.15  # 15% max drawdown
+  kill_switch_enabled: true
+  kill_switch_threshold: 0.1  # 10% loss triggers kill switch
+
+# Execution Configuration
+execution:
+  order_timeout: 30  # Order timeout in seconds
+  max_retries: 3  # Max order retries
+  slippage_tolerance: 0.0001  # Slippage tolerance
+  use_iceberg: true  # Use iceberg orders
+  use_smart_routing: true  # Use smart order routing
+
+# Logging Configuration
+logging:
+  level: "INFO"  # Log level: DEBUG, INFO, WARNING, ERROR
+  file: "logs/trading.log"  # Log file path
+  max_size: "100MB"  # Max log file size
+  backup_count: 5  # Number of backup log files
+  format: "json"  # Log format: json, text
+
+# Monitoring Configuration
+monitoring:
+  dashboard_enabled: true
+  dashboard_port: 8501  # Streamlit dashboard port
+  metrics_enabled: true
+  metrics_port: 9090  # Prometheus metrics port
+  alerting_enabled: true
+  alert_channels:
+    - "email"
+    - "telegram"
+    - "slack"
+
+# Alert Configuration
+alerts:
+  email:
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: "your_email@gmail.com"
+    password: "your_app_password"
+    recipients:
+      - "admin@yourdomain.com"
+  telegram:
+    bot_token: "your_bot_token"
+    chat_id: "your_chat_id"
+  slack:
+    webhook_url: "your_webhook_url"
+
+# Database Configuration
+database:
+  type: "sqlite"  # Database type: sqlite, postgresql, mysql
+  path: "data/trading.db"  # Database file path
+  backup_enabled: true
+  backup_interval: 3600  # Backup interval in seconds
+
+# Security Configuration
+security:
+  encryption_enabled: true
+  key_file: "config/encryption.key"
+  access_control_enabled: true
+  admin_users:
+    - "admin"
+  read_only_users:
+    - "viewer"
+
+# Testing Configuration
+testing:
+  paper_trading: true  # Enable paper trading mode
+  backtest_enabled: true
+  backtest_start_date: "2023-01-01"
+  backtest_end_date: "2023-12-31"
+  simulation_mode: false  # Enable simulation mode for testing
