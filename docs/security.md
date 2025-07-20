@@ -94,3 +94,43 @@ flowchart TD
 ---
 
 > **TODO:** Add compliance check templates and audit trail implementation details.
+
+---
+
+## Access Control Matrix
+
+| Role         | Read | Write | Deploy | Approve | Risk/Compliance | Notes                |
+|--------------|------|-------|--------|---------|-----------------|----------------------|
+| Quant        |  X   |   X   |        |         |                 |                      |
+| Trader       |  X   |       |        |         |                 |                      |
+| Engineer     |  X   |   X   |   X    |         |                 |                      |
+| Manager      |  X   |   X   |   X    |   X     |        X        |                      |
+| Compliance   |  X   |       |        |   X     |        X        |                      |
+
+## Credential Rotation & Incident Response
+- Rotate all credentials (API keys, passwords, certificates) on a regular schedule (e.g., quarterly)
+- Use secure vaults for credential storage and access
+- In case of suspected compromise:
+  - [ ] Immediately revoke and rotate affected credentials
+  - [ ] Notify security and compliance leads
+  - [ ] Conduct root cause analysis and document incident
+  - [ ] Review and update access control policies
+
+---
+
+## Penetration Testing & Security Audit Checklist
+- [ ] Schedule regular penetration tests (at least annually)
+- [ ] Review and update threat models
+- [ ] Remediate all critical and high findings promptly
+- [ ] Document all tests, findings, and remediations
+- [ ] Review access logs and privilege escalations
+
+## Data Privacy & GDPR/CCPA Compliance
+- [ ] Identify and document all personal/sensitive data collected
+- [ ] Ensure data minimization and purpose limitation
+- [ ] Implement data subject rights (access, deletion, correction)
+- [ ] Maintain data retention and deletion schedules
+- [ ] Review and document all data sharing with third parties
+- [ ] Train staff on data privacy obligations
+
+---

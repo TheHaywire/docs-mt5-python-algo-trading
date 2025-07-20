@@ -125,3 +125,29 @@ flowchart TD
 ---
 
 > **TODO:** Add pseudocode and code snippets for real-time risk aggregation and kill switch modules.
+
+---
+
+## Model Risk Management
+- All models must be validated before deployment:
+  - [ ] Independent backtest and out-of-sample validation
+  - [ ] Stress testing under extreme scenarios
+  - [ ] Model risk documented (assumptions, limitations, failure modes)
+  - [ ] Regular model review and re-validation schedule
+
+## Operational Risk Playbook
+- Incident response and escalation steps:
+  - [ ] Immediate containment (halt trading, flatten positions)
+  - [ ] Root cause analysis
+  - [ ] Communication to stakeholders
+  - [ ] Post-mortem and process improvement
+
+## Audit Trail & Compliance Log
+- Maintain a log of all changes, reviews, incidents, and compliance checks:
+  - [ ] Date/time
+  - [ ] Description
+  - [ ] Responsible party
+  - [ ] Review/approval
+  - [ ] Outcome/action taken
+
+---

@@ -470,3 +470,499 @@ flowchart TD
 ---
 
 > **TODO:** Add pseudocode and code snippets for each stage of the alpha research pipeline.
+
+---
+
+## 13. Strategy Data Requirements & Signal Logic
+
+| Strategy      | Lookback (Bars) | Data Normalization / Features      | Signal Trigger Example                        |
+|---------------|-----------------|------------------------------------|-----------------------------------------------|
+| Scalping      | 50              | Raw price, order book, spread      | Imbalance > 0.6 & spread > 0.0001             |
+| Momentum      | 10, 20, 50, 100 | Rolling mean, std, ROC, breakout   | ROC > 1% or price > recent high/low           |
+| Mean Reversion| 20, 50          | Z-score, rolling mean/std          | Z-score > 2 or < -2                           |
+| Stat-Arb      | 100+            | Spread, z-score, cointegration     | Spread z-score > 2 or < -2                    |
+| Market Making | 10              | Mid, bid/ask, inventory, volatility| Inventory/volatility-based quoting            |
+| Event-Driven  | N/A             | Event features, sentiment, surprise| Event detected & sentiment > 0.7 or < -0.7    |
+
+### Notes:
+- **Lookback (Bars):** Number of historical bars used for rolling calculations or features.
+- **Data Normalization / Features:** How raw data is transformed (e.g., rolling mean, z-score, order book features).
+- **Signal Trigger Example:** Typical condition(s) that generate a buy/sell signal for each strategy.
+
+#### How to Adjust:
+- You can change lookback windows and normalization logic in each strategy’s config or code.
+- Signal triggers are defined in each strategy’s `generate_signal` method—customize as needed for your edge.
+
+---
+
+## 14. Data Preparation Examples
+
+### Scalping (Order Book Imbalance)
+```python
+# Fetch last 50 bars of order book data
+data = data_feed.get_order_book(symbol)
+# No normalization, but extract features:
+imbalance = sum(list(data['bids'].values())[:5]) - sum(list(data['asks'].values())[:5])
+spread = min(data['asks'].keys()) - max(data['bids'].keys())
+```
+
+### Momentum (Rolling Mean & ROC)
+```python
+# Fetch last 100 bars of price data
+data = data_feed.get_price_data(symbol, lookback=100)
+# Normalize: calculate rolling mean and rate of change
+rolling_mean = data['close'].rolling(20).mean()
+roc = (data['close'] - data['close'].shift(20)) / data['close'].shift(20)
+```
+
+### Mean Reversion (Z-Score)
+```python
+# Fetch last 50 bars of price data
+data = data_feed.get_price_data(symbol, lookback=50)
+# Normalize: calculate z-score
+mean = data['close'].rolling(20).mean()
+std = data['close'].rolling(20).std()
+zscore = (data['close'] - mean) / std
+```
+
+---
+
+## 15. Data-to-Signal Flow Diagram
+
+```mermaid
+flowchart TD
+    A["Raw Data Feed"] --> B["Data Normalization"]
+    B --> C["Feature Engineering"]
+    C --> D["Signal Generation"]
+    D --> E["Risk Check & Execution"]
+```
+
+---
+
+## 16. Common Pitfalls & Best Practices
+
+- **Pitfall:** Using too short a lookback window can make signals noisy and overfit.
+  - **Best Practice:** Use rolling windows that match the strategy’s time horizon and test with backtesting.
+- **Pitfall:** Not normalizing data for ML-based strategies can lead to poor model performance.
+  - **Best Practice:** Always standardize or normalize features for ML models.
+- **Pitfall:** Hard-coding signal thresholds without validation.
+  - **Best Practice:** Tune thresholds using historical data and walk-forward analysis.
+- **Pitfall:** Ignoring data quality (missing bars, outliers).
+  - **Best Practice:** Implement data quality checks and handle missing/outlier data gracefully.
+- **Pitfall:** Overlapping signals from multiple strategies causing risk concentration.
+  - **Best Practice:** Aggregate risk and PnL attribution by strategy and symbol; use portfolio-level risk controls.
+
+---
+
+## 17. Step-by-Step Example: From Data to Trade
+
+**Example: Momentum Strategy on EURUSD**
+
+1. **Fetch Data:**
+   ```python
+   data = data_feed.get_price_data('EURUSD', lookback=100)
+   ```
+2. **Normalize/Engineer Features:**
+   ```python
+   rolling_mean = data['close'].rolling(20).mean()
+   roc = (data['close'] - data['close'].shift(20)) / data['close'].shift(20)
+   ```
+3. **Generate Signal:**
+   ```python
+   if roc.iloc[-1] > 0.01:
+       signal = Signal(..., signal_type=SignalType.BUY, ...)
+   else:
+       signal = None
+   ```
+4. **Risk Check:**
+   - The signal is passed to the risk manager, which checks position size, VaR, drawdown, etc.
+5. **Execute Trade:**
+   - If approved, the execution engine places a market order via MT5.
+6. **Log & Monitor:**
+   - The trade, signal, and outcome are logged and shown on the dashboard.
+
+---
+
+## 18. FAQ: Data, Signals, and Strategy Tuning
+
+**Q: How do I change the lookback window for a strategy?**
+- A: Edit the `lookback` parameter in the strategy’s config or code (e.g., `momentum_lookback: 20`).
+
+**Q: How do I add a new feature (e.g., volatility) to my strategy?**
+- A: In your strategy’s `generate_signal` method, compute the feature (e.g., `data['close'].rolling(20).std()`) and use it in your signal logic.
+
+**Q: How do I debug why a signal wasn’t generated?**
+- A: Check the data window, feature values, and signal conditions in your strategy’s code. Use logging to print intermediate values.
+
+**Q: How do I test changes before going live?**
+- A: Use the backtesting engine to simulate your strategy on historical data and review performance metrics.
+
+**Q: How do I ensure my data is clean and reliable?**
+- A: Use the data quality monitoring tools described in `docs/data_pipeline.md` and handle missing/outlier data in your preprocessing.
+
+---
+
+## 19. Troubleshooting Signals & Data
+
+- **No signals generated?**
+  - Check if your data window is large enough for the lookback period.
+  - Print/log feature values and thresholds in your `generate_signal` method.
+  - Ensure your data feed is up-to-date and not missing bars.
+  - Confirm your signal logic is not too restrictive.
+
+- **Unexpected or too many signals?**
+  - Review your feature calculations for errors or outliers.
+  - Check for data quality issues (spikes, gaps).
+  - Adjust thresholds or add additional filters.
+
+- **Data gaps or NaNs?**
+  - Use `.dropna()` or fill missing values in your preprocessing.
+  - Implement data quality checks as described in `docs/data_pipeline.md`.
+
+- **Risk manager blocks all trades?**
+  - Review risk parameters (VaR, drawdown, position size) in your config.
+  - Log risk checks and reasons for rejection.
+
+---
+
+## 20. Advanced Customization
+
+- **Add custom features (e.g., alternative data, ML features):**
+  - In your strategy, fetch or compute new features (e.g., sentiment, options flow).
+  - Normalize/standardize as needed.
+  - Use in your `generate_signal` logic.
+
+- **Custom risk logic per strategy:**
+  - Override `process_signal` or add custom risk checks in your strategy class.
+  - Example: tighter stop-loss for high-volatility regimes.
+
+- **Custom execution logic:**
+  - Override execution methods to use special order types (iceberg, TWAP, etc.).
+  - Integrate with external execution algos if needed.
+
+---
+
+## 21. New Strategy Template
+
+```python
+from strategies.base_strategy import BaseStrategy, Signal, SignalType
+
+class MyNewStrategy(BaseStrategy):
+    def generate_signal(self, symbol, data):
+        # Example: simple moving average crossover
+        short_ma = data['close'].rolling(10).mean()
+        long_ma = data['close'].rolling(50).mean()
+        if short_ma.iloc[-1] > long_ma.iloc[-1]:
+            return Signal(
+                timestamp=data.index[-1],
+                symbol=symbol,
+                signal_type=SignalType.BUY,
+                strength=1.0,
+                price=data['close'].iloc[-1],
+                confidence=0.8,
+                metadata={}
+            )
+        elif short_ma.iloc[-1] < long_ma.iloc[-1]:
+            return Signal(
+                timestamp=data.index[-1],
+                symbol=symbol,
+                signal_type=SignalType.SELL,
+                strength=1.0,
+                price=data['close'].iloc[-1],
+                confidence=0.8,
+                metadata={}
+            )
+        return None
+```
+
+---
+
+## 22. Setup Grading (A+, A, B+, B, C+, C)
+
+### What is Setup Grading?
+Setup grading is a way to quantify the quality or conviction of a trade setup. Higher grades (A+, A) mean more criteria are met, higher expected edge, and greater confidence. Lower grades (B, C) mean fewer confirmations or more risk.
+
+### Example Grading Criteria
+- **A+ Setup:** All signals align (e.g., strong momentum, volume surge, regime confirmation, no conflicting signals)
+- **A Setup:** Most signals align, minor confirmation missing
+- **B+ / B Setup:** Decent, but with some risk or missing confirmations
+- **C+ / C Setup:** Marginal, low edge, only take in special circumstances or for learning
+
+### How to Implement in Code
+Add a `setup_grade` field to the `Signal` class and assign it in your strategy:
+
+```python
+class MomentumStrategy(BaseStrategy):
+    def generate_signal(self, symbol, data):
+        roc = (data['close'].iloc[-1] - data['close'].iloc[-20]) / data['close'].iloc[-20]
+        volume_surge = data['volume'].iloc[-1] > data['volume'].rolling(20).mean().iloc[-1] * 1.5
+        regime = self.detect_regime(symbol, data)
+        
+        # Grading logic
+        if roc > 0.02 and volume_surge and regime == 'trending':
+            grade = 'A+'
+        elif roc > 0.015 and (volume_surge or regime == 'trending'):
+            grade = 'A'
+        elif roc > 0.01:
+            grade = 'B'
+        else:
+            grade = 'C'
+        
+        if grade != 'C':
+            return Signal(
+                timestamp=data.index[-1],
+                symbol=symbol,
+                signal_type=SignalType.BUY,
+                strength=1.0,
+                price=data['close'].iloc[-1],
+                confidence=0.8,
+                metadata={'setup_grade': grade}
+            )
+        return None
+```
+
+### Position Sizing by Setup Grade
+
+| Setup Grade | Position Size (Fraction of Max) |
+|-------------|-------------------------------|
+| A+          | 1.0 (Full size)               |
+| A           | 0.75                          |
+| B+          | 0.5                           |
+| B           | 0.33                          |
+| C+ / C      | 0.1 or skip                   |
+
+**Tip:** In your `calculate_position_size` method, multiply the base size by the grade’s fraction.
+
+### Why Use Setup Grading?
+- **Risk Management:** Take more risk on high-conviction trades, less on marginal ones.
+- **Performance Review:** Attribute PnL by grade to see where your real edge is.
+- **Continuous Improvement:** Focus research on improving or filtering out lower-grade setups.
+
+---
+
+## 23. Entry & Exit Conditions: Summary Table
+
+| Strategy      | Entry Condition Example                        | Exit Condition Example                        |
+|---------------|-----------------------------------------------|-----------------------------------------------|
+| Scalping      | Order book imbalance > 0.6 & spread > 0.0001  | Take profit, stop loss, or max holding time   |
+| Momentum      | ROC > 1% or price > recent high/low           | Opposite signal, stop loss, or time stop      |
+| Mean Reversion| Z-score > 2 or < -2                           | Z-score returns to 0, stop loss, or time stop |
+| Stat-Arb      | Spread z-score > 2 or < -2                    | Spread mean reverts, stop loss, or time stop  |
+| Market Making | Inventory/volatility-based quoting            | Inventory limit, adverse selection, time stop |
+| Event-Driven  | Event detected & sentiment > 0.7 or < -0.7    | Post-event window, stop loss, or opposite     |
+
+---
+
+## 24. Advanced Exit Logic Examples
+
+- **Trailing Stop:**
+  ```python
+  # Update stop loss as price moves in your favor
+  if position.side == 'LONG':
+      position.stop_loss = max(position.stop_loss, current_price - trailing_amount)
+  elif position.side == 'SHORT':
+      position.stop_loss = min(position.stop_loss, current_price + trailing_amount)
+  ```
+- **Volatility-Based Exit:**
+  ```python
+  # Exit if volatility spikes above threshold
+  if data['close'].rolling(20).std().iloc[-1] > vol_threshold:
+      close_position()
+  ```
+- **Time-Based Exit:**
+  ```python
+  # Exit after N bars or seconds
+  if (current_time - position.entry_time).total_seconds() > max_holding_time:
+      close_position()
+  ```
+- **Multi-Leg Exit (Stat-Arb):**
+  ```python
+  # Close both legs when spread mean reverts
+  if abs(spread_zscore) < 0.5:
+      close_all_positions()
+  ```
+
+---
+
+## 25. Customizing Entry/Exit Logic
+
+- **Tune thresholds** (e.g., z-score, ROC, spread) in your strategy’s config or code.
+- **Add filters** (e.g., avoid trading during news, low liquidity, or high volatility periods).
+- **Combine multiple conditions** (e.g., require both momentum and volume surge).
+- **Use ML models** to predict optimal entry/exit points.
+- **Backtest** all changes before deploying live.
+
+---
+
+## 26. FAQ: Entry/Exit Logic
+
+**Q: How do I add a trailing stop to my strategy?**
+- A: Update the stop loss dynamically as price moves in your favor (see example above).
+
+**Q: How do I avoid trading during news or high volatility?**
+- A: Add a filter in your `generate_signal` method to skip signals during those periods.
+
+**Q: How do I implement a time-based exit?**
+- A: Track entry time and close the position after a set duration (see example above).
+
+**Q: How do I test new entry/exit logic?**
+- A: Use the backtesting engine to simulate and review performance before going live.
+
+**Q: Can I use multiple exit conditions?**
+- A: Yes! Most strategies combine stop loss, take profit, time stop, and opposite signal exits for robustness.
+
+---
+
+## 27. Entry/Exit Logic Flowchart
+
+```mermaid
+flowchart TD
+    A["New Market Data"] --> B["Feature Calculation"]
+    B --> C["Entry Condition Met?"]
+    C -- Yes --> D["Generate Signal"]
+    D --> E["Risk Check"]
+    E -- Pass --> F["Open Position"]
+    E -- Fail --> G["No Trade"]
+    F --> H["Monitor Position"]
+    H --> I["Exit Condition Met?"]
+    I -- Yes --> J["Close Position"]
+    I -- No --> H
+    C -- No --> G
+```
+
+---
+
+## 28. Edge Cases & Real-World Scenarios
+
+- **Partial Fills:**
+  - Track filled vs. unfilled size; update position and risk accordingly.
+  - Consider re-issuing or canceling remaining order.
+- **Slippage:**
+  - Compare expected vs. actual fill price; log and analyze slippage.
+  - Adjust future order logic or risk if slippage is persistent.
+- **Missed Exits:**
+  - Monitor for missed stop loss/take profit due to gaps or illiquidity.
+  - Add fallback logic (e.g., market order exit if limit not filled).
+- **Execution Errors:**
+  - Log all errors; retry or escalate as needed.
+  - Use monitoring/alerting to catch and respond to failures in real time.
+- **Market Halts/News Events:**
+  - Add logic to pause trading or flatten positions during scheduled/unscheduled halts or major news.
+
+---
+
+## 29. Checklist for Entry/Exit Logic Review
+
+- [ ] Are all entry and exit conditions clearly defined and tested?
+- [ ] Are thresholds and lookbacks appropriate for the strategy’s time frame?
+- [ ] Are there filters for no-trade periods (e.g., news, low liquidity)?
+- [ ] Is there logic for all possible exits (stop loss, take profit, time, opposite signal)?
+- [ ] Are edge cases (partial fills, slippage, missed exits) handled?
+- [ ] Is all logic backtested and reviewed for robustness?
+- [ ] Are all signals, trades, and exits logged for audit and review?
+- [ ] Is there a monitoring/alerting system for execution errors or missed exits?
+
+---
+
+## 30. Research Log Template
+
+| Date       | Hypothesis/Idea | Data Used | Method | Results | Next Steps | Reviewer |
+|------------|-----------------|-----------|--------|---------|------------|----------|
+| YYYY-MM-DD |                 |           |        |         |            |          |
+
+## 31. Alpha Lifecycle Flow
+
+```mermaid
+flowchart TD
+    A["Hypothesis/Idea"] --> B["Research Log & Experiment"]
+    B --> C["Backtest & Validation"]
+    C --> D["Walk-Forward/Out-of-Sample"]
+    D --> E["Shadow Trading"]
+    E --> F["Live Trading"]
+    F --> G["Performance Review"]
+    G --> H["Retire/Iterate"]
+    H --> B
+```
+
+## 32. Post-Mortem Template
+
+| Date       | Incident/Issue | Impact | Root Cause | Resolution | Lessons Learned | Action Items | Owner |
+|------------|----------------|--------|------------|------------|----------------|--------------|-------|
+| YYYY-MM-DD |                |        |            |            |                |              |       |
+
+---
+
+## 33. Case Studies & Lessons Learned
+
+### Example: Flash Crash Incident
+- **Date:** 2023-05-12
+- **Incident:** Sudden market crash triggered stop-losses across all strategies
+- **Impact:** Large drawdown, several positions closed at unfavorable prices
+- **Root Cause:** Lack of circuit breaker logic and insufficient volatility filters
+- **Resolution:** Added circuit breaker, improved volatility detection, and updated risk limits
+- **Lessons Learned:**
+  - Always have circuit breakers for extreme events
+  - Regularly review and stress test risk parameters
+  - Monitor for market regime shifts
+
+### Case Study Template
+| Date       | Incident/Issue | Impact | Root Cause | Resolution | Lessons Learned | Action Items | Owner |
+|------------|----------------|--------|------------|------------|----------------|--------------|-------|
+| YYYY-MM-DD |                |        |            |            |                |              |       |
+
+---
+
+## 34. Jupyter/Notebook Research Template
+
+```markdown
+# Research Title
+
+## 1. Hypothesis/Objective
+- What are you testing or exploring?
+
+## 2. Data Used
+- Source, time period, features
+
+## 3. Methodology
+- Feature engineering, model, backtest setup
+
+## 4. Results
+- Plots, tables, metrics
+
+## 5. Interpretation
+- What do the results mean?
+
+## 6. Next Steps
+- Further research, deployment, or discard
+
+## 7. Reviewer Comments
+- Peer review notes
+```
+
+## 35. Experiment Reproducibility Checklist
+- [ ] All code and data are versioned (Git, DVC, etc.)
+- [ ] Random seeds set for all stochastic processes
+- [ ] All dependencies and environment details documented
+- [ ] Results and figures saved with code
+- [ ] Peer review completed and logged
+- [ ] Research log entry created/updated
+
+---
+
+## 36. ML Model Governance Template
+
+| Model Name | Owner | Approval Status | Last Validation | Retrain Schedule | Monitoring Metrics | Notes |
+|------------|-------|----------------|-----------------|------------------|-------------------|-------|
+|            |       |                |                 |                  |                   |       |
+
+- All models must be registered, approved, and regularly validated.
+- Monitoring includes drift detection, performance, and risk metrics.
+
+## 37. ML Experiment Tracking Integration
+- Use MLflow, DVC, or similar tools for:
+  - Versioning code, data, and parameters
+  - Tracking experiments, metrics, and artifacts
+  - Reproducibility and auditability
+- Integrate experiment tracking with research log and model inventory
+
+---
