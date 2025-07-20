@@ -8,11 +8,11 @@ flowchart TD
     C[Historical Data Source] --> D[Historical Data Loader]
     B --> E[Data Normalizer]
     D --> E
-    E --> F[Event Sourcing/Raw Store]
+    E --> F[Event Sourcing Raw Store]
     E --> G[Feature Engineering]
     G --> H[Feature Store]
     F --> I[Data Quality Monitor]
-    I --> J[Alerts/Logs]
+    I --> J[Alerts Logs]
 ```
 
 ---

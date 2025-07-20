@@ -9,7 +9,7 @@ flowchart TD
     C --> D[MT5 Broker]
     C --> E[Post-Trade Risk Engine]
     E --> F[Exposure Tracker]
-    F --> G[Monitoring/Alerting]
+    F --> G[Monitoring Alerting]
     E --> H[Kill Switch]
     H --> G
 ```
@@ -105,12 +105,12 @@ stateDiagram-v2
 ```mermaid
 flowchart TD
     A[Risk Data Feed] --> B[Risk Aggregator]
-    B --> C[VaR/Drawdown/Exposure Monitors]
+    B --> C[VaR Drawdown Exposure Monitors]
     C --> D[Stress Testing Engine]
     D --> E[Kill Switch Logic]
     E --> F[Order Manager]
     F --> G[Execution Engine]
-    E --> H[Alerting/Monitoring]
+    E --> H[Alerting Monitoring]
     B --> I[PnL Attribution]
     I --> J[Reporting]
 ```

@@ -10,7 +10,7 @@ flowchart TD
     B --> E[Log Storage]
     C --> F[Monitoring Dashboard]
     D --> G[Notification Channels]
-    G --> H[Email/SMS/Telegram/Slack]
+    G --> H[Email SMS Telegram Slack]
 ```
 
 ---

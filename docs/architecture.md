@@ -4,15 +4,15 @@
 
 ```mermaid
 flowchart TD
-    A[Market Data (MT5)] --> B[Data Handler]
+    A[Market Data MT5] --> B[Data Handler]
     B --> C[Strategy Engine]
     C --> D[Risk Manager]
     D --> E[Execution Engine]
     E --> F[MT5 Broker]
     C --> G[Backtesting Module]
-    D --> H[Monitoring & Logging]
-    F --> I[Order/Trade Reports]
-    H --> J[Alerting/Notifications]
+    D --> H[Monitoring Logging]
+    F --> I[Order Trade Reports]
+    H --> J[Alerting Notifications]
 ```
 
 ## Component Descriptions

@@ -115,12 +115,12 @@ flowchart TD
     B --> C[Microstructure Feature Extraction]
     C --> D[Scalping Signal Engine]
     D --> E[Execution Tactics Module]
-    E --> F[Order Placement (Iceberg, Layered)]
-    F --> G[Real-Time Fill/Slippage Analysis]
+    E --> F[Order Placement Iceberg Layered]
+    F --> G[Real-Time Fill Slippage Analysis]
     G --> H[Adaptive Parameter Tuning]
     H --> D
     F --> I[Risk Aggregator]
-    I --> J[Kill Switch/Auto-Deleveraging]
+    I --> J[Kill Switch Auto-Deleveraging]
     F --> K[Trade Quality Analytics]
     K --> L[Post-Trade Forensics]
 ```
@@ -178,8 +178,8 @@ flowchart TD
     B --> C[Regime Detection]
     C --> D[Momentum Signal Engine]
     D --> E[Execution Tactics Module]
-    E --> F[Order Placement (VWAP/TWAP, Aggressive/Passive)]
-    F --> G[Slippage/Adverse Selection Monitor]
+    E --> F[Order Placement VWAP TWAP Aggressive Passive]
+    F --> G[Slippage Adverse Selection Monitor]
     G --> H[Adaptive Parameter Tuning]
     H --> D
     F --> I[Risk Aggregator]
@@ -236,12 +236,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Market Data Feed] --> B[Pair/Portfolio Selection]
+    A[Market Data Feed] --> B[Pair Portfolio Selection]
     B --> C[Feature Engineering]
     C --> D[Stat-Arb Signal Engine]
     D --> E[Execution Tactics Module]
-    E --> F[Order Placement (Synchronous, Hedged)]
-    F --> G[Leg Imbalance/Slippage Monitor]
+    E --> F[Order Placement Synchronous Hedged]
+    F --> G[Leg Imbalance Slippage Monitor]
     G --> H[Adaptive Parameter Tuning]
     H --> D
     F --> I[Risk Aggregator]
@@ -298,8 +298,8 @@ flowchart TD
     B --> C[Regime Detection]
     C --> D[Mean Reversion Signal Engine]
     D --> E[Execution Tactics Module]
-    E --> F[Order Placement (Passive, Band Edges)]
-    F --> G[Slippage/Missed Fill Monitor]
+    E --> F[Order Placement Passive Band Edges]
+    F --> G[Slippage Missed Fill Monitor]
     G --> H[Adaptive Parameter Tuning]
     H --> D
     F --> I[Risk Aggregator]
@@ -351,8 +351,8 @@ flowchart TD
     B --> C[Feature Engineering]
     C --> D[Quoting Engine]
     D --> E[Execution Tactics Module]
-    E --> F[Order Placement (Bid/Ask Quotes)]
-    F --> G[Inventory/PnL Monitor]
+    E --> F[Order Placement Bid Ask Quotes]
+    F --> G[Inventory PnL Monitor]
     G --> H[Adaptive Quote Adjustment]
     H --> D
     F --> I[Risk Aggregator]
@@ -400,12 +400,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[News/Event Feed] --> B[Event Detection]
+    A[News Event Feed] --> B[Event Detection]
     B --> C[Feature Engineering]
     C --> D[Event Signal Engine]
     D --> E[Execution Tactics Module]
-    E --> F[Order Placement (Aggressive, Latency Sensitive)]
-    F --> G[Slippage/Impact Monitor]
+    E --> F[Order Placement Aggressive Latency Sensitive]
+    F --> G[Slippage Impact Monitor]
     G --> H[Adaptive Parameter Tuning]
     H --> D
     F --> I[Risk Aggregator]
@@ -447,14 +447,14 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Hypothesis Generation] --> B[Data Acquisition & Cleaning]
+    A[Hypothesis Generation] --> B[Data Acquisition Cleaning]
     B --> C[Feature Engineering]
     C --> D[Model Selection]
     D --> E[Backtesting]
     E --> F[Walk-Forward Validation]
     F --> G[Robustness Checks]
     G --> H[Shadow Trading]
-    H --> I[Live A/B Testing]
+    H --> I[Live A B Testing]
     I --> J[Performance Monitoring]
     J --> K[Continuous Improvement]
     K --> C

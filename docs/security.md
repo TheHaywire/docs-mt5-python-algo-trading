@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart TD
-    A[Config File/Env Var] --> B[Credential Loader]
+    A[Config File Env Var] --> B[Credential Loader]
     B --> C[Decryption Module]
     C --> D[In-Memory Secure Store]
     D --> E[Component Access]
@@ -17,10 +17,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[User/Process] --> B[Auth Module]
+    A[User Process] --> B[Auth Module]
     B --> C[Role-Based Access Control]
     C --> D[Permission Check]
-    D --> E[Action Allowed/Denied]
+    D --> E[Action Allowed Denied]
     D --> F[Audit Log]
 ```
 
