@@ -966,3 +966,61 @@ flowchart TD
 - Integrate experiment tracking with research log and model inventory
 
 ---
+
+## 38. Shadow/Live Deployment Pipeline
+
+### Shadow Deployment (Paper Trading)
+- Deploy new alpha/strategy in shadow mode (no real capital, paper trades only)
+- Log all signals, trades, and PnL as if live
+- Monitor performance, risk, and operational metrics
+- Compare shadow results to live strategies and benchmarks
+
+### Promotion Criteria
+- Minimum out-of-sample period (e.g., 1-3 months)
+- Meets or exceeds performance and risk thresholds
+- Passes code, risk, and compliance review
+- No critical operational or monitoring issues
+
+### Live Deployment
+- Gradual capital allocation (start small, scale up)
+- Continue monitoring and logging as in shadow mode
+- Enable automated rollback if performance/risk deteriorates
+
+### Monitoring & Rollback
+- Real-time monitoring of PnL, risk, and operational health
+- Automated alerts for underperformance or risk breaches
+- Rollback to shadow or disable strategy if criteria not met
+
+---
+
+## 39. End-to-End Example: Research to Live Deployment
+
+### 1. Hypothesis & Feature Engineering
+- Define a new alpha idea (e.g., "momentum with volatility filter").
+- Engineer features in a Jupyter notebook (e.g., rolling mean, ROC, volatility).
+
+### 2. Model Training & Backtest
+- Train an ML model (e.g., logistic regression, XGBoost) to predict short-term returns.
+- Backtest the model’s signals on historical data.
+- Log all parameters, metrics, and artifacts to MLflow for reproducibility.
+
+### 3. Model Packaging & Validation
+- Save the trained model as a `.joblib` or `.pkl` file.
+- Validate on out-of-sample data and document results.
+
+### 4. Deployment as a Live/Shadow Strategy
+- Integrate the model into `MLSignalStrategy` (point to the saved model file and feature list).
+- Deploy in shadow mode (paper trading, no real capital).
+- Monitor all signals, trades, and PnL as if live.
+
+### 5. Promotion to Live Trading
+- After a minimum out-of-sample period and meeting performance/risk criteria, promote to live trading.
+- Start with small capital allocation, scale up as confidence grows.
+- Enable automated rollback if performance or risk deteriorates.
+
+### 6. Monitoring & Continuous Improvement
+- Monitor model performance, drift, and operational health in real time.
+- Set up alerts for retraining or disabling underperforming models.
+- Feed live trading results back into the research pipeline for ongoing improvement.
+
+---

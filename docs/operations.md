@@ -315,3 +315,55 @@ flowchart TD
 - Ensure exports are versioned, encrypted, and access-controlled
 
 ---
+
+## Go-Live Checklist (Daily/Weekly)
+- [ ] Only 1-2 simple, robust strategies enabled (e.g., momentum on EURUSD)
+- [ ] Shadow mode (paper trading) or very small real capital
+- [ ] Risk limits set conservatively
+- [ ] Monitoring/logging enabled and checked daily
+- [ ] All trades, signals, and errors logged
+
+---
+
+## Daily Review Template
+| Date       | Signals | Trades | PnL   | Drawdown | Errors/Issues | Notes/Ideas |
+|------------|---------|--------|-------|----------|--------------|-------------|
+| YYYY-MM-DD |         |        |       |          |              |             |
+
+- **Signals:** How many, what types, any surprises?
+- **Trades:** Executed as expected? Any missed?
+- **PnL/Drawdown:** In line with backtest? Any big swings?
+- **Errors/Issues:** Data gaps, system errors, missed trades?
+- **Notes/Ideas:** What to try or fix tomorrow?
+
+---
+
+## End-of-Week Review Template
+| Metric         | Value/Notes                        |
+|----------------|------------------------------------|
+| Total PnL      |                                    |
+| Max Drawdown   |                                    |
+| Win Rate       |                                    |
+| Best/Worst Trade|                                   |
+| Top Issue      |                                    |
+| Top Improvement|                                    |
+| Next Steps     |                                    |
+
+---
+
+## Using the Automated Report Generator
+
+- Make sure your trade logs are saved as `logs/trades.csv` (with columns like `date`, `signal`, `pnl`, `drawdown`, `error`).
+- To generate daily and weekly review reports (in both markdown and CSV):
+
+```bash
+python src/utils/generate_reports.py
+```
+
+- Find your reports in the `reports/` directory:
+  - `daily_review_YYYY-MM-DD.md` and `.csv`
+  - `weekly_review_YYYY-MM-DD.md` and `.csv`
+
+- Review these reports each day/week to monitor performance, issues, and plan improvements.
+
+---
